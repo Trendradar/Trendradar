@@ -37,7 +37,8 @@ if page == "ℹ️ Trendradar":
 
     st.markdown("---")
     st.markdown("## 📈 Weitere Trends mit starkem Wachstum")
-    remaining = df.sort_values("Wachstum", ascending=False).iloc[3:9]
+    remaining = df.sort_values("Wachstum", ascending=False).iloc[3:23]
+
     cols = st.columns(3)
 
     for i, (_, row) in enumerate(remaining.iterrows()):

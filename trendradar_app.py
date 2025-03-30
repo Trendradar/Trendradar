@@ -41,8 +41,11 @@ if page == "ℹ️ Trendradar":
 
     st.markdown("---")
     st.markdown("### 📈 Weitere Trends mit starkem Wachstum")
-    remaining = df.sort_values("Wachstum", ascending=False).dropna().iloc[3:]
-remaining = remaining.head(20)
+    remaining = df.sort_values("Wachstum", ascending=False).dropna()
+
+# Alles ab Platz 4 bis max. Platz 24 (also 20 Stück)
+remaining = remaining.iloc[3:23]
+
 
     cols = st.columns(3)
 

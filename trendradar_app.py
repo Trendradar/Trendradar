@@ -8,12 +8,16 @@ st.set_page_config(page_title="Trendradar", layout="wide")
 st.sidebar.title("🧠 Trendradar")
 page = st.sidebar.radio("Navigation", ["ℹ️ Trendradar", "📁 Trend Datenbank", "⭐ Favoriten Trends", "📄 Impressum"])
 
-# Daten laden
+# CSV laden
 df = pd.read_csv("trends.csv", encoding="utf-8", sep=",", quotechar='"')
 df["Wachstum"] = pd.to_numeric(df["Wachstum"].astype(str).str.replace(",", ""), errors="coerce")
 df["Volumen"] = pd.to_numeric(df["Volumen"].astype(str).str.replace(",", ""), errors="coerce")
 
-# Trend-Chart
+# Debug-Ausgabe des DataFrames
+st.write("📊 Gesamte Datenmenge (nach Laden und Umwandlung):", df.shape)
+st.write(df.head(5))
+
+# Funktion: Verlauf als Liniendiagramm anzeigen
 def plot_trend(row):
     fig, ax = plt.subplots(figsize=(4, 2))
     views = list(map(int, row["Verlauf"].split(",")))
@@ -22,34 +26,31 @@ def plot_trend(row):
     ax.set_ylabel("Views")
     st.pyplot(fig)
 
-# Hauptansicht
+# Hauptseite
 if page == "ℹ️ Trendradar":
-    st.markdown("### 🔥 Top 3 Trends mit höchstem Wachstum")
+    st.markdown("## 🔥 Top 3 Trends mit höchstem Wachstum")
 
     df_sorted = df.sort_values("Wachstum", ascending=False).dropna().reset_index(drop=True)
-    top3 = df_sorted.iloc[:3]
-    remaining = df_sorted.iloc[3:23]  # exakt 20
+    st.write("✅ Sortierte & bereinigte Daten:", df_sorted.shape)
 
-    cols = st.columns(3)
+    top3 = df_sorted.iloc[:3]
     for i, (_, row) in enumerate(top3.iterrows()):
-        with cols[i]:
-            st.markdown(f"### {row['Trend']}")
-            st.caption(row["Kategorie"])
-            st.markdown(f"**<span style='color:green'>Wachstum: +{int(row['Wachstum'])}%</span>**", unsafe_allow_html=True)
-            st.markdown(f"**<span style='color:#3999ff'>Volumen: {int(row['Volumen']):,}</span>**", unsafe_allow_html=True)
-            plot_trend(row)
+        st.markdown(f"### [{i+1}] {row['Trend']}")
+        st.write(f"Kategorie: {row['Kategorie']}")
+        st.write(f"Wachstum: {row['Wachstum']}%")
+        st.write(f"Volumen: {row['Volumen']}")
+        plot_trend(row)
 
     st.markdown("---")
-    st.markdown("### 📈 Weitere Trends mit starkem Wachstum")
+    st.markdown("## 📈 Weitere Trends mit starkem Wachstum")
 
-    # ⭐ Fixiertes Raster mit 3 Spalten pro Zeile (insgesamt 20 Karten sichtbar)
-    for i in range(0, len(remaining), 3):
-        row_items = remaining.iloc[i:i+3]
-        cols = st.columns(3)
-        for j, (_, row) in enumerate(row_items.iterrows()):
-            with cols[j]:
-                st.markdown(f"### {row['Trend']}")
-                st.caption(row["Kategorie"])
-                st.markdown(f"**<span style='color:green'>Wachstum: +{int(row['Wachstum'])}%</span>**", unsafe_allow_html=True)
-                st.markdown(f"**<span style='color:#3999ff'>Volumen: {int(row['Volumen']):,}</span>**", unsafe_allow_html=True)
-                plot_trend(row)
+    remaining = df_sorted.iloc[3:23]  # Platz 4–24
+    st.write(f"Anzahl weiterer Trends: {len(remaining)} (Sollte 20 sein)")
+
+    for idx, (_, row) in enumerate(remaining.iterrows(), start=4):
+        st.markdown(f"### [{idx}] {row['Trend']}")
+        st.write(f"Kategorie: {row['Kategorie']}")
+        st.write(f"Wachstum: {row['Wachstum']}%")
+        st.write(f"Volumen: {row['Volumen']}")
+        plot_trend(row)
+

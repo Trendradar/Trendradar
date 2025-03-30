@@ -6,16 +6,16 @@ st.set_page_config(page_title="Trendradar", layout="wide")
 
 # Seitenmenü
 st.sidebar.title("🧠 Trendradar")
-page = st.sidebar.radio("Navigation", ["ℹ️ Trendradar", "📂 Trend Datenbank", "⭐ Favoriten Trends", "ℹ️ Impressum"])
+page = st.sidebar.radio("Navigation", ["ℹ️ Trendradar", "📁 Trend Datenbank", "⭐ Favoriten Trends", "🧾 Impressum"])
 
 # Daten laden
-df = pd.read_csv("trends.csv", encoding="utf-8", sep=",", quotechar='"', engine="python")
+df = pd.read_csv("trends.csv", encoding="utf-8", sep=",", quotechar='"', dtype=str)
 
-# Nachträglich numerisch konvertieren
-df["Wachstum"] = pd.to_numeric(df["Wachstum"], errors="coerce")
-df["Volumen"] = pd.to_numeric(df["Volumen"], errors="coerce")
+# Spalten in numerische Werte umwandeln
+df["Wachstum"] = pd.to_numeric(df["Wachstum"].str.replace(",", ""), errors="coerce")
+df["Volumen"] = pd.to_numeric(df["Volumen"].str.replace(",", ""), errors="coerce")
 
-# Trend-Chart zeichnen
+# Funktion: Trend-Chart zeichnen
 def plot_trend(row):
     fig, ax = plt.subplots(figsize=(4, 2))
     views = list(map(int, row["Verlauf"].split(",")))
@@ -33,22 +33,21 @@ if page == "ℹ️ Trendradar":
 
     for i, (_, row) in enumerate(top3.iterrows()):
         with cols[i]:
-            st.markdown(f"### {row.Trend}")
-            st.caption(row.Kategorie)
-            st.markdown(f"**<span style='color:green'>Wachstum: +{row.Wachstum}%</span>**", unsafe_allow_html=True)
-            st.markdown(f"**<span style='color:#3999ff'>Volumen: {row.Volumen:,}</span>**", unsafe_allow_html=True)
+            st.markdown(f"### {row['Trend']}")
+            st.caption(row["Kategorie"])
+            st.markdown(f"**<span style='color:green'>Wachstum: +{row['Wachstum']}%</span>**", unsafe_allow_html=True)
+            st.markdown(f"**<span style='color:#3999ff'>Volumen: {int(row['Volumen']):,}</span>**", unsafe_allow_html=True)
             plot_trend(row)
 
     st.markdown("---")
-    st.markdown("## 📈 Weitere Trends mit starkem Wachstum")
+    st.markdown("### 📈 Weitere Trends mit starkem Wachstum")
     remaining = df.sort_values("Wachstum", ascending=False).iloc[3:23]
-
     cols = st.columns(3)
 
     for i, (_, row) in enumerate(remaining.iterrows()):
         with cols[i % 3]:
-            st.markdown(f"### {row.Trend}")
-            st.caption(row.Kategorie)
-            st.markdown(f"**<span style='color:green'>Wachstum: +{row.Wachstum}%</span>**", unsafe_allow_html=True)
-            st.markdown(f"**<span style='color:#3999ff'>Volumen: {row.Volumen:,}</span>**", unsafe_allow_html=True)
+            st.markdown(f"### {row['Trend']}")
+            st.caption(row["Kategorie"])
+            st.markdown(f"**<span style='color:green'>Wachstum: +{row['Wachstum']}%</span>**", unsafe_allow_html=True)
+            st.markdown(f"**<span style='color:#3999ff'>Volumen: {int(row['Volumen']):,}</span>**", unsafe_allow_html=True)
             plot_trend(row)

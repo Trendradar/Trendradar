@@ -6,14 +6,14 @@ st.set_page_config(page_title="Trendradar", layout="wide")
 
 # Seitenmenü
 st.sidebar.title("🧠 Trendradar")
-page = st.sidebar.radio("Navigation", ["ℹ️ Trendradar", "📁 Trend Datenbank", "⭐ Favoriten Trends", "🧾 Impressum"])
+page = st.sidebar.radio("Navigation", ["ℹ️ Trendradar", "📁 Trend Datenbank", "⭐ Favoriten Trends", "📘 Impressum"])
 
-# Daten laden
+# CSV einlesen mit korrektem Encoding und Spaltentypen
 df = pd.read_csv("trends.csv", encoding="utf-8", sep=",", quotechar='"', dtype=str)
 
 # Spalten in numerische Werte umwandeln
-df["Wachstum"] = pd.to_numeric(df["Wachstum"].str.replace(",", ""), errors="coerce")
-df["Volumen"] = pd.to_numeric(df["Volumen"].str.replace(",", ""), errors="coerce")
+df["Wachstum"] = pd.to_numeric(df["Wachstum"].str.replace(",", "", ""), errors="coerce")
+df["Volumen"] = pd.to_numeric(df["Volumen"].str.replace(",", "", ""), errors="coerce")
 
 # Funktion: Trend-Chart zeichnen
 def plot_trend(row):
@@ -41,12 +41,9 @@ if page == "ℹ️ Trendradar":
 
     st.markdown("---")
     st.markdown("### 📈 Weitere Trends mit starkem Wachstum")
-    remaining = df.sort_values("Wachstum", ascending=False).dropna()
 
-# Alles ab Platz 4 bis max. Platz 24 (also 20 Stück)
-remaining = remaining.iloc[3:23]
-
-
+    # Platz 4 bis 24 anzeigen
+    remaining = df.sort_values("Wachstum", ascending=False).dropna().iloc[3:23]
     cols = st.columns(3)
 
     for i, (_, row) in enumerate(remaining.iterrows()):

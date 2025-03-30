@@ -9,7 +9,9 @@ st.sidebar.title("🧠 Trendradar")
 page = st.sidebar.radio("Navigation", ["ℹ️ Trendradar", "📂 Trend Datenbank", "⭐ Favoriten Trends", "ℹ️ Impressum"])
 
 # Daten laden
-df = pd.read_csv("trends.csv", encoding="utf-8", dtype=str)
+df = pd.read_csv("trends.csv", encoding="utf-8", quotechar='"', dtype=str)
+
+# Nachträglich numerisch konvertieren
 df["Wachstum"] = pd.to_numeric(df["Wachstum"], errors="coerce")
 df["Volumen"] = pd.to_numeric(df["Volumen"], errors="coerce")
 
